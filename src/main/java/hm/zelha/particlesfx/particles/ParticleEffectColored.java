@@ -5,22 +5,22 @@ import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.util.Color;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.MinecraftKey;
+import net.minecraft.resources.ResourceLocation;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class ParticleEffectColored extends ColorableParticle {
 
-    private final net.minecraft.core.particles.Particle<ColorParticleOption> registryParticle = (net.minecraft.core.particles.Particle<ColorParticleOption>) BuiltInRegistries.i.a(MinecraftKey.a("minecraft", "entity_effect"));
+    private final net.minecraft.core.particles.ParticleType<ColorParticleOption> registryParticle = (net.minecraft.core.particles.ParticleType<ColorParticleOption>) BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.fromNamespaceAndPath("minecraft", "entity_effect"));
     private int transparency = 255;
 
     public ParticleEffectColored(@Nullable Color color, int transparency, double offsetX, double offsetY, double offsetZ, int count) {
         super("", color, offsetX, offsetY, offsetZ, count);
 
-        particle = ColorParticleOption.a(registryParticle, transparency << 24 | ((color != null) ? color.getRGB() : Color.WHITE.getRGB()));
+        particle = ColorParticleOption.create(registryParticle, transparency << 24 | ((color != null) ? color.getRGB() : Color.WHITE.getRGB()));
 
         setTransparency(transparency);
     }
@@ -71,12 +71,12 @@ public class ParticleEffectColored extends ColorableParticle {
 
     @Override
     protected void display(Location location, List<CraftPlayer> players) {
-        ColorParticleOption p = (ColorParticleOption) particle;
+        ColorParticleOption colorParticleOption = (ColorParticleOption) particle;
 
         if (color == null) {
-            particle = ColorParticleOption.a(registryParticle, transparency << 24 | rng.nextInt(0xffffff));
-        } else if (p.b() * 255 != color.getRed() || p.c() * 255 != color.getGreen() || p.d() * 255 != color.getBlue() || p.e() * 255 != transparency) {
-            particle = ColorParticleOption.a(registryParticle, transparency << 24 | color.getRGB());
+            particle = ColorParticleOption.create(registryParticle, transparency << 24 | rng.nextInt(0xffffff));
+        } else if (colorParticleOption.getRed() * 255 != color.getRed() || colorParticleOption.getGreen() * 255 != color.getGreen() || colorParticleOption.getBlue() * 255 != color.getBlue() || colorParticleOption.getAlpha() * 255 != transparency) {
+            particle = ColorParticleOption.create(registryParticle, transparency << 24 | color.getRGB());
         }
 
         super.display(location, players);

@@ -3,15 +3,15 @@ package hm.zelha.particlesfx.particles;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.particles.parents.TravellingParticle;
 import hm.zelha.particlesfx.util.LVMath;
-import net.minecraft.core.BlockPosition;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.VibrationParticleOption;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutWorldParticles;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.PositionSource;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -114,21 +114,20 @@ public class ParticleVibration extends TravellingParticle {
         if (entity != null) {
             source = new EntityPositionSource(((CraftEntity) entity).getHandle(), (float) (entity.getHeight() / 2));
         } else {
-            BlockPosition.MutableBlockPosition destination = new BlockPosition.MutableBlockPosition();
-
-            destination.d(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-            destination.e(fakeOffsetHelper.getBlockX(), fakeOffsetHelper.getBlockY(), fakeOffsetHelper.getBlockZ());
+            BlockPos.MutableBlockPos destination = new BlockPos.MutableBlockPos();
+            destination.set(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            destination.move(fakeOffsetHelper.getBlockX(), fakeOffsetHelper.getBlockY(), fakeOffsetHelper.getBlockZ());
 
             if (toGo != null) {
-                destination.d(toGo.getBlockX(), toGo.getBlockY(), toGo.getBlockZ());
+                destination.set(toGo.getBlockX(), toGo.getBlockY(), toGo.getBlockZ());
             } else if (velocity != null) {
-                destination.e((int) velocity.getX(), (int) velocity.getY(), (int) velocity.getZ());
+                destination.move((int) velocity.getX(), (int) velocity.getY(), (int) velocity.getZ());
             }
 
             source = new BlockPositionSource(destination);
         }
 
-        return new PacketPlayOutWorldParticles(
+        return new ClientboundLevelParticlesPacket(
                 new VibrationParticleOption(source, arrivalTime), true, (float) xyz.getX(), (float) xyz.getY(), (float) xyz.getZ(), 0f,
                 0f, 0f, 1, 1
         );

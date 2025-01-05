@@ -2,13 +2,14 @@ package hm.zelha.particlesfx.particles;
 
 import hm.zelha.particlesfx.particles.parents.MaterialParticle;
 import hm.zelha.particlesfx.particles.parents.Particle;
-import net.minecraft.core.particles.ParticleParamBlock;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.MinecraftKey;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_21_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_21_R1.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 
 public class ParticleBlockBreak extends Particle implements MaterialParticle {
     public ParticleBlockBreak(Material material, double offsetX, double offsetY, double offsetZ, int count) {
@@ -65,10 +66,10 @@ public class ParticleBlockBreak extends Particle implements MaterialParticle {
         Validate.notNull(material, "Material cannot be null!");
         Validate.isTrue(material.isBlock(), "Material must be a block!");
 
-        particle = new ParticleParamBlock((net.minecraft.core.particles.Particle) BuiltInRegistries.i.a(MinecraftKey.a("minecraft", "block")), ((CraftBlockData) material.createBlockData()).getState());
+        particle = new BlockParticleOption((ParticleType<BlockParticleOption>) BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.fromNamespaceAndPath("minecraft", "block")), ((CraftBlockData) material.createBlockData()).getState());
     }
 
     public Material getMaterial() {
-        return CraftMagicNumbers.getMaterial(((ParticleParamBlock) particle).b().b());
+        return CraftMagicNumbers.getMaterial(((BlockParticleOption) particle).getState().getBlock());
     }
 }

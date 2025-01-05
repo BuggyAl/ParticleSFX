@@ -5,7 +5,7 @@ import hm.zelha.particlesfx.particles.parents.SizeableParticle;
 import hm.zelha.particlesfx.util.Color;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -131,18 +131,18 @@ public class ParticleDustMulticolored extends ParticleDustColored implements Siz
             this.pureColor = pureColor;
 
             if (color != null) {
-                b().set(color.getRed(), color.getGreen(), color.getBlue());
-                b().div(255F);
+                getFromColor().set(color.getRed(), color.getGreen(), color.getBlue());
+                getFromColor().div(255F);
             }
 
             if (transition != null) {
-                c().set(transition.getRed(), transition.getGreen(), transition.getBlue());
-                c().div(255F);
+                getToColor().set(transition.getRed(), transition.getGreen(), transition.getBlue());
+                getToColor().div(255F);
             }
 
             if (pureColor) {
-                b().mul(Float.MAX_VALUE);
-                c().mul(Float.MAX_VALUE);
+                getFromColor().mul(Float.MAX_VALUE);
+                getToColor().mul(Float.MAX_VALUE);
             }
         }
     }

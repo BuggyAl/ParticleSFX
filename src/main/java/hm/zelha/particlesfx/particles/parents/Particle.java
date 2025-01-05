@@ -1,23 +1,30 @@
 package hm.zelha.particlesfx.particles.parents;
 
 import hm.zelha.particlesfx.util.LVMath;
-import net.minecraft.core.particles.ParticleParam;
+//import net.minecraft.core.particles.ParticleParam;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutWorldParticles;
-import net.minecraft.resources.MinecraftKey;
-import net.minecraft.server.level.EntityPlayer;
+//import net.minecraft.network.protocol.game.PacketPlayOutWorldParticles;
+//import net.minecraft.resources.MinecraftKey;
+//import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_21_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
+//import org.bukkit.craftbukkit.v1_21_R1.CraftServer;
+//import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -27,7 +34,7 @@ public abstract class Particle {
     protected final Vector fakeOffsetHelper = new Vector();
     protected final Vector xyzHelper = new Vector();
     protected final Vector offsetHelper = new Vector();
-    protected ParticleParam particle;
+    protected ParticleOptions particle;
     protected double offsetX;
     protected double offsetY;
     protected double offsetZ;
@@ -38,8 +45,7 @@ public abstract class Particle {
     private final List<CraftPlayer> listHelper = new ArrayList<>();
 
     protected Particle(String particleID, double offsetX, double offsetY, double offsetZ, int count) {
-        this.particle = (ParticleType) BuiltInRegistries.i.a(MinecraftKey.a("minecraft", particleID));
-
+        this.particle = (ParticleOptions) BuiltInRegistries.PARTICLE_TYPE.get(ResourceLocation.fromNamespaceAndPath("minecraft", particleID));
         setOffset(offsetX, offsetY, offsetZ);
         setCount(count);
     }
@@ -94,34 +100,28 @@ public abstract class Particle {
         Validate.notNull(location.getWorld(), "World cannot be null!");
 
         for (int i = 0; i < ((getPacketCount() != count) ? count : 1); i++) {
-            for (int k = 0; k < players.size(); k++) {
-                EntityPlayer p = players.get(k).getHandle();
+            for (CraftPlayer craftPlayer : players) {
+                ServerPlayer player = craftPlayer.getHandle();
 
-                if (p == null) continue;
-                if (!location.getWorld().getName().equals(p.dO().getWorld().getName())) continue;
+                if (player == null) continue;
+                if (!location.getWorld().getName().equals(player.level().getWorld().getName())) continue;
 
                 if (radius != 0) {
-                    double distance = Math.pow(location.getX() - p.dn().a(), 2) +
-                            Math.pow(location.getY() - p.dn().b(), 2) +
-                            Math.pow(location.getZ() - p.dn().c(), 2);
+                    double distance = Math.pow(location.getX() - player.trackingPosition().x(), 2) +
+                            Math.pow(location.getY() - player.trackingPosition().y(), 2) +
+                            Math.pow(location.getZ() - player.trackingPosition().z(), 2);
 
                     if (distance > Math.pow(radius, 2)) continue;
                 }
 
                 Vector xyz = getXYZ(location);
                 Vector offsets = getOffsets(location);
-                Packet strangePacket = getStrangePacket(location);
+                Packet<?> strangePacket = getStrangePacket(location);
 
-                if (strangePacket != null) {
-                    p.c.b(strangePacket);
-                } else {
-                    p.c.b(
-                            new PacketPlayOutWorldParticles(
-                                    particle, true, (float) xyz.getX(), (float) xyz.getY(), (float) xyz.getZ(), (float) offsets.getX(),
-                                    (float) offsets.getY(), (float) offsets.getZ(), getPacketSpeed(), getPacketCount()
-                            )
-                    );
-                }
+                player.connection.send(Objects.requireNonNullElseGet(strangePacket, () -> new ClientboundLevelParticlesPacket(
+                        particle, true, (float) xyz.getX(), (float) xyz.getY(), (float) xyz.getZ(), (float) offsets.getX(),
+                        (float) offsets.getY(), (float) offsets.getZ(), getPacketSpeed(), getPacketCount()
+                )));
             }
         }
     }

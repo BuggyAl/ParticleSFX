@@ -4,9 +4,9 @@ import hm.zelha.particlesfx.particles.parents.ColorableParticle;
 import hm.zelha.particlesfx.particles.parents.Particle;
 import hm.zelha.particlesfx.particles.parents.SizeableParticle;
 import hm.zelha.particlesfx.util.Color;
-import net.minecraft.core.particles.ParticleParamRedstone;
+import net.minecraft.core.particles.DustParticleOptions;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
@@ -145,7 +145,7 @@ public class ParticleDustColored extends ColorableParticle implements SizeablePa
     }
 
 
-    private static class ParticleParamDust extends ParticleParamRedstone {
+    private static class ParticleParamDust extends DustParticleOptions {
 
         private static final ThreadLocalRandom rng = ThreadLocalRandom.current();
         private final Color color;
@@ -160,12 +160,12 @@ public class ParticleDustColored extends ColorableParticle implements SizeablePa
             this.pureColor = pureColor;
 
             if (color != null) {
-                b().set(color.getRed(), color.getGreen(), color.getBlue());
-                b().div(255F);
+                getColor().set(color.getRed(), color.getGreen(), color.getBlue());
+                getColor().div(255F);
             }
 
             if (pureColor) {
-                b().mul(Float.MAX_VALUE);
+                getColor().mul(Float.MAX_VALUE);
             }
         }
     }

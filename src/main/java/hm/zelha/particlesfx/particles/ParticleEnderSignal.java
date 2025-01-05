@@ -1,9 +1,9 @@
 package hm.zelha.particlesfx.particles;
 
 import hm.zelha.particlesfx.particles.parents.Particle;
-import net.minecraft.core.BlockPosition;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutWorldEvent;
+import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 
@@ -16,7 +16,7 @@ import org.bukkit.Location;
  */
 public class ParticleEnderSignal extends Particle {
 
-    private final BlockPosition.MutableBlockPosition pos = new BlockPosition.MutableBlockPosition(0, 0, 0);
+    private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
 
     /**@see ParticleEnderSignal*/
     public ParticleEnderSignal(int count) {
@@ -42,8 +42,8 @@ public class ParticleEnderSignal extends Particle {
 
     @Override
     protected Packet getStrangePacket(Location location) {
-        return new PacketPlayOutWorldEvent(
-                Effect.ENDER_SIGNAL.getId(), pos.d(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
+        return new ClientboundLevelEventPacket(
+                Effect.ENDER_SIGNAL.getId(), pos.set(location.getBlockX(), location.getBlockY(), location.getBlockZ()),
                 Effect.ENDER_SIGNAL.getId(), false
         );
     }
